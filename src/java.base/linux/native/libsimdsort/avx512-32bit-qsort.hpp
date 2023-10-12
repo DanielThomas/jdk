@@ -72,7 +72,8 @@ struct zmm_vector<int32_t> {
     }
     static zmm_t loadu(void const *mem) { return _mm512_loadu_si512(mem); }
     static void mask_compressstoreu(void *mem, opmask_t mask, zmm_t x) {
-        return _mm512_mask_compressstoreu_epi32(mem, mask, x);
+        opmask_t store_mask = _pext_u32(-1, mask);
+        return _mm512_mask_storeu_epi32(mem, store_mask, _mm512_maskz_compress_epi32(mask, x));
     }
     static zmm_t mask_loadu(zmm_t x, opmask_t mask, void const *mem) {
         return _mm512_mask_loadu_epi32(x, mask, mem);
@@ -133,7 +134,8 @@ struct zmm_vector<float> {
     static zmm_t loadu(void const *mem) { return _mm512_loadu_ps(mem); }
     static zmm_t max(zmm_t x, zmm_t y) { return _mm512_max_ps(x, y); }
     static void mask_compressstoreu(void *mem, opmask_t mask, zmm_t x) {
-        return _mm512_mask_compressstoreu_ps(mem, mask, x);
+        opmask_t store_mask = _pext_u32(-1, mask);
+        return _mm512_mask_storeu_ps(mem, store_mask, _mm512_maskz_compress_ps(mask, x));
     }
     static zmm_t mask_loadu(zmm_t x, opmask_t mask, void const *mem) {
         return _mm512_mask_loadu_ps(x, mask, mem);
